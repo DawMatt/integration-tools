@@ -1,0 +1,27 @@
+# Using slim instead of alpine, so grep --null and xargs -0 options work
+
+# FROM node:16-alpine
+# ~190 Mb
+FROM node:16-slim
+# 245 Mb
+# FROM node:16
+# 975 Mb
+
+ENV NODE_ENV=production
+
+RUN mkdir -p /opt/
+WORKDIR /opt
+RUN npm install --omit=dev --location=global @stoplight/spectral
+
+COPY spectralbulk.sh /opt/spectralbulk.sh
+COPY .spectral*.yaml /opt/
+
+WORKDIR /src
+CMD ["/bin/sh", "/opt/spectralbulk.sh"]
+
+# docker build -f Dockerfile.spectralbulk --tag spectralbulk .
+# docker images
+# docker run -v "$(pwd)":/src -it spectralbulk
+
+# Debug only:
+# docker run -it spectralbulk /bin/sh
